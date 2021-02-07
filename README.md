@@ -18,10 +18,10 @@ The fastest way to buy and sell stocks; Rising Stocks has a clean and intuitive 
 * market's volatility
 * misinformation (depending on user's internet speed)
 
-## **Who will use our app?**
+### Who will use our app?
 * Persons 18+ years old that's interested with availing stocks
 * Brokerages that has knowledge about stocks and market prices
 
-## **What will the users do with the app?**
+### What will the users do with the app?
 * View and track the ongoing process of their stock/s
 * Get the latest updates regarding the stock market, and more!
