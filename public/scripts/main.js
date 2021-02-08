@@ -20,16 +20,21 @@ firebase.auth().onAuthStateChanged(function(user) {
 
     // https://firebase.google.com/docs/reference/js/firebase.User
     if (user) {
-        if (location.pathname == '/index.html') { index() } 
-        else if (location.pathname == '/quote.html') { quote() }
-        else if (location.pathname == '/buy.html') { buy() }
-        else if (location.pathname == '/sell.html') { sell() } 
-        else if (location.pathname == '/history.html') { history() }
+        navbar(user);
+        if (location.pathname == '/index.html') { index(user) } 
+        else if (location.pathname == '/quote.html') { quote(user) }
+        else if (location.pathname == '/buy.html') { buy(user) }
+        else if (location.pathname == '/sell.html') { sell(user) } 
+        else if (location.pathname == '/history.html') { history(user) }
         else { location.href = '/index.html' }
     } else if (location.pathname != '/signin.html') {
         location.href = '/signin.html';
     }
 });
+
+
+// Delay loading of signin and index page
+setTimeout(() => document.querySelector('body').removeAttribute('hidden'), 500);
 
 
 // Logs in user

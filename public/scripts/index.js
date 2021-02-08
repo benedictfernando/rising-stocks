@@ -1,24 +1,33 @@
 
-function index() {
+// Setups web app's database
+var db = firebase.firestore();
 
-    // Shortcut to necessary elements
-    var database = firebase.firestore();
-    var user = firebase.auth().currentUser;
+
+function navbar(user) {
     var navUsername = document.getElementById('navUsername');
     var navUserimage = document.getElementById('navUserimage');
+
+    if (!!navUsername && !!navUserimage) {
+        navUsername.innerHTML = 'User ID: ' + user.uid;
+        navUserimage.src = `${user.photoURL}`;
+        navUserimage.style.width = '42px';
+        navUserimage.style.borderRadius = '10px';
+    }
+}
+
+function index(user) {
+
+    // Shortcut to necessary elements
     var tableUsername = document.getElementById('tableUsername');
-    // End of shortcut
 
     // Sets user interface for 'index.html'
     document.title += ' Portfolio';
-    navUsername.innerHTML = 'User ID: ' + user.uid;
-    navUserimage.src = `${user.photoURL}`;
-    navUserimage.style.width = '42px';
-    navUserimage.style.borderRadius = '10px';
+
+    // Todo 
     tableUsername.innerHTML = user.displayName;
 }
 
-function quote() {
+function quote(user) {
 
     // Sets user interface for 'quote.html'
     document.title += ' Quote';
@@ -26,7 +35,7 @@ function quote() {
     // Todo   
 }
 
-function buy() {
+function buy(user) {
 
     // Sets user interface for 'buy.html'
     document.title += ' Buy';
@@ -34,7 +43,7 @@ function buy() {
     // Todo
 }
 
-function sell() {
+function sell(user) {
 
     // Sets user interface for 'sell.html'
     document.title += ' Sell';
@@ -42,7 +51,7 @@ function sell() {
     // Todo
 }
 
-function history() {
+function history(user) {
 
     // Sets user interface for 'history.html'
     document.title += ' History';
