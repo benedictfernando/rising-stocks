@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+
+<html lang="en-us">
+
+    <head>
+
+        <!-- Metadata -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Rising Stocks: Sign In</title>
+        <meta name="author" content="Benedict Fernando">
+        <meta name="description" content="A place where you can buy and sell stocks.">
+
+        <!-- Facebook Integration -->
+    	<meta property="og:title" content="Rising Stocks"/>
+    	<meta property="og:image" content="/static/brand.png"/>
+    	<meta property="og:description" content="A place where you can buy and sell stocks."/>
+
+        <!-- Favicon -->
+    	<link rel="apple-touch-icon" sizes="180x180" href="/static/favicon/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="/static/favicon/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/static/favicon/favicon-16x16.png">
+		<link rel="manifest" href="/static/favicon/site.webmanifest">
+        
+        <!-- Bootstrap CSS -->
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
+        
+        <!-- Bootstrap Theme: Litera
+        <link href="/static/litera.css" rel="stylesheet"> -->
+
+        <!-- Icons -->
+        <link crossorigin="anonymous" href="https://use.fontawesome.com/releases/v5.13.0/css/all.css"
+              integrity="sha384-Bfad6CLCknfcloXFOyFnlgtENryhrpZCe29RTifKEixXQZ38WheV+i/6YWSzkz3V" rel="stylesheet">
+
+        <!-- Own CSS -->
+        <link href="/static/styles.css" rel="stylesheet">
+
+        <!-- Google Font: Ubuntu -->
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap" rel="stylesheet">
+
+        <!-- Bootstrap Javascript -->
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+        
+    </head>
+
+    <body>
+
+        <nav class="navbar navbar-expand-md navbar-light bg-light border">
+
+            <a class="navbar-brand" href="/index.html"><img src="/static/brand.png" alt="Rising Stocks"></a>
+
+            <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation"
+                    class="navbar-toggler" data-target="#navbar" data-toggle="collapse" type="button">
+                            <span class="navbar-toggler-icon"></span></button>
+
+            <div class="collapse navbar-collapse" id="navbar">
+                <ul class="navbar-nav ml-auto mt-2">
+                    <li class="nav-item"><a class="nav-link" href="#">Register</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/signin.html">Log in</a></li>
+                </ul>
+            </div>
+
+        </nav>
+
+        <br>
+
+        <main class="container p-5 shadow">
+            <img class="login-img" src="/static/team4.png" alt="Team 4">
+    
+            <br><button id="login">Sign in with Email</button>
+
+            <div class="small text-muted mt-3">Don't have an account yet? Sign up <a href="#">here</a>.</div>
+        </main>
+
+        <br>
+        
+        <p class="text-secondary text-center">For listing directory of NYSE Stocks, click
+            <a href="https://www.nyse.com/listings_directory/stock" target="_blank">here</a>.</p>
+        
+        <footer class="small text-center text-muted">
+            <i>• © 2021 COEN 3463 <a href="https://coen3463-t4m1.web.app" target="_blank">Team 4</a> •</i>
+        </footer>
+
+        <!-- Firebase Core JS SDK -->
+        <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-app.js"></script>
+
+        <!-- Firebase JS Resources -->
+        <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-auth.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-firestore.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-analytics.js"></script>
+
+        <!-- Own JavaScript -->
+        <script src="/scripts/main.js"></script>
+
+    </body>
+
+</html>

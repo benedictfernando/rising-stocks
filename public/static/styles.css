@@ -1,0 +1,66 @@
+body {
+    font-family: 'Ubuntu', sans-serif;
+}
+
+nav .navbar-brand img
+{
+    /* size for brand */
+    width: 197px;
+}
+
+.nav-item {
+    padding-bottom: 5px;
+}
+
+main .form-control
+{
+    /* center form controls */
+    display: inline-block;
+
+    /* override Bootstrap's 100% width for form controls */
+    width: auto;
+}
+
+main
+{
+    /* scroll horizontally as needed */
+    overflow-x: auto;
+
+    /* center contents */
+    text-align: center;
+}
+
+main img
+{
+    /* constrain images on small screens */
+    max-width: 100%;
+}
+
+main {
+    background: #EEE;
+    border-radius: 30px;
+}
+
+input[type=number] {
+    width: 123px;
+}
+
+select[name=symbol] {
+    width: 143px;
+} 
+
+.login-img {
+    height: 150px;
+    position: relative;
+    margin: 0 auto;
+    bottom: 20px;
+    border-radius: 50%;
+}
+
+.text-muted {
+    margin-top: 18px;
+}
+
+footer {
+    margin-bottom: 15px;
+}
