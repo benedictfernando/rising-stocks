@@ -75,9 +75,12 @@
         <br>
 
         <main class="container p-5 shadow">
-            <h1>Coming soon.</h1>
-            <p>This path is currently under construction.</p>
-            <small class="text-muted">Go back to <a href="/index.html">home</a>.</small>
+            <form action="/quote.html" method="post">
+                <div class="form-group">
+                    <input type="text" name="symbol" class="form-control" placeholder="Stock Symbol" autofocus autocomplete="off" maxlength="6" size="10" required>
+                </div>
+                <button type="submit" class="btn btn-info">Quote</button>
+            </form>
         </main>
 
         <br>

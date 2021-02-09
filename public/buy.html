@@ -75,9 +75,17 @@
         <br>
 
         <main class="container p-5 shadow">
-            <h1>Coming soon.</h1>
-            <p>This path is currently under construction.</p>
-            <small class="text-muted">Go back to <a href="/index.html">home</a>.</small>
+            <form action="/buy.html" method="post">
+                <div class="form-group">
+                    <label for="symbol">Stock:</label>
+                    <input type="text" name="symbol" id="symbol" class="form-control" placeholder="Symbol" autofocus autocomplete="off" maxlength="6" size="8" required>
+                </div>
+                <div class="form-group">
+                    <label for="shares">Buy:</label>
+                    <input type="number" name="shares" id="shares" class="form-control" placeholder="Share(s)" autocomplete="off" min="1" required>
+                </div>
+                <button type="submit" class="btn btn-success">Buy</button>
+            </form>
         </main>
 
         <br>
