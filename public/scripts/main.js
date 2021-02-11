@@ -33,8 +33,8 @@ firebase.auth().onAuthStateChanged(function(user) {
 });
 
 
-// Delay loading of signin and index page
-setTimeout(() => document.querySelector('body').removeAttribute('hidden'), 500);
+// Delay showing of pages
+setTimeout(() => document.querySelector('body').removeAttribute('hidden'), 600);
 
 
 // Logs in user
