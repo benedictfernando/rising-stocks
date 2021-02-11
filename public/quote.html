@@ -46,7 +46,7 @@
         
     </head>
 
-    <body>
+    <body hidden>
 
         <nav class="navbar navbar-expand-md navbar-light bg-light border">
 
@@ -75,12 +75,17 @@
         <br>
 
         <main class="container p-5 shadow">
-            <form action="/quote.html" method="post">
+            <form method="post">
                 <div class="form-group">
-                    <input type="text" name="symbol" class="form-control" placeholder="Stock Symbol" autofocus autocomplete="off" maxlength="6" size="10" required>
+                    <input type="text" id="symbol" name="symbol" class="form-control" placeholder="Stock Symbol" autofocus autocomplete="off" maxlength="6" size="10" required>
                 </div>
                 <button type="submit" class="btn btn-info">Quote</button>
             </form>
+
+            <div id="detailsDiv">
+                <br>A share of <strong id="detailsName">...</strong> (<span id="detailsSymbol">...</span>) currently costs:
+                <br><em id="detailsPrice" style="font-size: 30px">...</em>
+            </div><div id="detailsInfo"></div>
         </main>
 
         <br>
@@ -97,7 +102,6 @@
 
         <!-- Firebase JS Resources -->
         <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-auth.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-firestore.js"></script>
         <script src="https://www.gstatic.com/firebasejs/8.2.6/firebase-analytics.js"></script>
 
         <!-- Own JavaScript -->

@@ -23,7 +23,8 @@ function index(user) {
                 var current = details.data();
                 tableUsercash.innerHTML = formatMoney(current.cash);
             } else {
-                currentUser.set({cash: 10000})
+                currentUser.set({cash: 10000});
+                currentUser.collection('portfolio');
             }
         })
     }
@@ -33,10 +34,43 @@ function index(user) {
 
 function quote(user) {
 
+    // Shortcut to necessary elements
+    var token = 'pk_93b7d07763694723a78dffcc81779114';
+    var detailsDiv = document.getElementById('detailsDiv');
+    var detailsInfo = document.getElementById('detailsInfo');
+    var detailsName = document.getElementById('detailsName');
+    var detailsSymbol = document.getElementById('detailsSymbol');
+    var detailsPrice = document.getElementById('detailsPrice');
+
     // Sets user interface for 'quote.html'
     document.title += ' Quote';
 
-    // Todo   
+    document.querySelector('form').onsubmit = function() {
+        detailsDiv.style.display = 'none';
+        detailsInfo.style.display = 'inline';
+        detailsInfo.innerHTML = '<br>Getting stock quotation...';
+        var symbol = document.getElementById('symbol').value;
+
+        // https://cors-anywhere.herokuapp.com/corsdemo
+        fetch(`https://cors-anywhere.herokuapp.com/https://cloud-sse.iexapis.com/stable/stock/${symbol}/quote?token=${token}`)
+        .then(response => {
+            if (response.status === 200) {
+                response.json().then (result => {
+                    detailsInfo.style.display = 'none';
+                    detailsDiv.style.display = 'inline';
+                    detailsName.innerHTML = result.companyName;
+                    detailsSymbol.innerHTML = result.symbol;
+                    detailsPrice.innerHTML = formatMoney(result.latestPrice);
+                })
+            } else {
+                detailsInfo.innerHTML = '<br><span style="font-size: 30px"><b>Error:</b> Invalid stock!</span>';
+            }
+        })
+        .catch(error => {
+            console.log(error.code, ':' ,error.message);
+        });
+        return false;
+    };
 }
 
 function buy(user) {
@@ -88,4 +122,3 @@ function formatMoney(number, decPlaces, decSep, thouSep) {
         i.substr(j).replace(/(\decSep{3})(?=\decSep)/g, "$1" + thouSep) +
         (decPlaces ? decSep + Math.abs(number - i).toFixed(decPlaces).slice(2) : "");
 }
-    
