@@ -68,3 +68,7 @@ footer {
 #detailsInfo, #detailsDiv {
     display: none;
 }
+
+#detailsPrice {
+    font-size: 30px;
+}

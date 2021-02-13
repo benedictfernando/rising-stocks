@@ -17,25 +17,23 @@ function index(user) {
     // Gets user's data from Firestore
     var currentUser = docRef.doc(uid);
     
-    getRealtimeUpdates = function() {
+    // Fires whenever Firebase detected change on Firestore
+    (function getRealtimeUpdates() {
         currentUser.onSnapshot(function(details) {
-            if (details.exists) {
+            if (details.exists) {  // Gets data if user exists
                 var current = details.data();
                 tableUsercash.innerHTML = formatMoney(current.cash);
-            } else {
+            } else {  // Else, setup portfolio and provide "cash"
                 currentUser.set({cash: 10000});
                 currentUser.collection('portfolio');
             }
         })
-    }
-
-    getRealtimeUpdates();
+    })()
 }
 
 function quote(user) {
 
     // Shortcut to necessary elements
-    var token = 'pk_93b7d07763694723a78dffcc81779114';
     var detailsDiv = document.getElementById('detailsDiv');
     var detailsInfo = document.getElementById('detailsInfo');
     var detailsName = document.getElementById('detailsName');
@@ -45,31 +43,31 @@ function quote(user) {
     // Sets user interface for 'quote.html'
     document.title += ' Quote';
 
+    // Returns data to user when form is submitted
     document.querySelector('form').onsubmit = function() {
+
+        // Prepares essential pieces for later manipulation
         detailsDiv.style.display = 'none';
         detailsInfo.style.display = 'inline';
         detailsInfo.innerHTML = '<br>Getting stock quotation...';
         var symbol = document.getElementById('symbol').value;
 
-        // https://cors-anywhere.herokuapp.com/corsdemo
-        fetch(`https://cors-anywhere.herokuapp.com/https://cloud-sse.iexapis.com/stable/stock/${symbol}/quote?token=${token}`)
-        .then(response => {
-            if (response.status === 200) {
-                response.json().then (result => {
-                    detailsInfo.style.display = 'none';
-                    detailsDiv.style.display = 'inline';
-                    detailsName.innerHTML = result.companyName;
-                    detailsSymbol.innerHTML = result.symbol;
-                    detailsPrice.innerHTML = formatMoney(result.latestPrice);
-                })
-            } else {
-                detailsInfo.innerHTML = '<br><span style="font-size: 30px"><b>Error:</b> Invalid stock!</span>';
-            }
+        // Fetches data from IEX Cloud Stocks API
+        fetch(`https://risingstocks.000webhostapp.com/lookup.php?symbol=${symbol}`)
+        .then(response => {response.json()
+            .then(result => {  // Informs user about the stocks they're searching
+                detailsInfo.style.display = 'none';
+                detailsDiv.style.display = 'inline';
+                detailsName.innerHTML = result.companyName;
+                detailsSymbol.innerHTML = result.symbol;
+                detailsPrice.innerHTML = formatMoney(result.latestPrice);
+            })
+            .catch(error => {  // Else, throws error
+                detailsInfo.innerHTML = '<br>Invalid stock.';
+                console.log(`${error.code}: ${error.message}`);
+            })
         })
-        .catch(error => {
-            console.log(error.code, ':' ,error.message);
-        });
-        return false;
+        return false;   // Assures that the current page will not reload
     };
 }
 
@@ -98,9 +96,12 @@ function history(user) {
 }
 
 function navbar(user) {
+
+    // Shortcut to necessary elements
     var navUsername = document.getElementById('navUsername');
     var navUserimage = document.getElementById('navUserimage');
 
+    // Sets navbar details for each page
     if (!!navUsername && !!navUserimage) {
         navUsername.innerHTML = 'Hi, ' + user.displayName.split(' ').shift() + '!';
         navUserimage.src = `${user.photoURL}`;
