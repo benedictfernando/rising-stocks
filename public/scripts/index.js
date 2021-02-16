@@ -191,6 +191,7 @@ function buy(user) {
                         }
                         portfolio.push(process);
                     } else {
+                        portfolio[owned].price = price;
                         portfolio[owned].shares += shares;
                     }
 
