@@ -8,11 +8,13 @@ function index(user) {
     // Shortcut to necessary elements
     var tableUsername = document.getElementById('tableUsername');
     var tableUsercash = document.getElementById('tableUsercash');
+    var tableUsertotal = document.getElementById('tableUsertotal');
+    var table = document.querySelector('tbody');
     var uid = user.uid;    
 
     // Sets user interface for 'index.html'
     document.title += ' Portfolio';
-    tableUsername.innerHTML = user.displayName;
+    tableUsername.innerHTML = user.displayName + ' (You)';
 
     // Gets user's data from Firestore
     var currentUser = docRef.doc(uid);
@@ -21,11 +23,57 @@ function index(user) {
     (function getRealtimeUpdates() {
         currentUser.onSnapshot(function(details) {
             if (details.exists) {  // Gets data if user exists
+                var sum = 0;
                 var current = details.data();
+                var portfolio = current.portfolio;
                 tableUsercash.innerHTML = formatMoney(current.cash);
-            } else {  // Else, setup portfolio and provide "cash"
-                currentUser.set({cash: 10000});
-                currentUser.collection('portfolio');
+
+                // Loops over returned list of owned stocks
+                for (let i = 0; i < portfolio.length; i++) {
+                    if (portfolio[i].shares > 0) {
+
+                        // Populates table's body
+                        var row = table.insertRow();
+                        
+                        // For stock's symbol
+                        var info = document.createTextNode(portfolio[i].symbol);
+                        var symbol = row.insertCell();
+                        symbol.appendChild(info);
+
+                        // For stock's company name
+                        info = document.createTextNode(portfolio[i].company);
+                        var company = row.insertCell();
+                        company.appendChild(info);
+
+                        // For user's number of particular stock owned
+                        info = document.createTextNode(portfolio[i].shares);
+                        var shares = row.insertCell();
+                        shares.appendChild(info);
+
+                        // For stock's price when user bought it
+                        info = document.createTextNode(formatMoney(portfolio[i].price));
+                        var price = row.insertCell();
+                        price.appendChild(info);
+
+                        // For number of shares owned * stock's price when user bought it
+                        var product = portfolio[i].shares * portfolio[i].price;
+                        info = document.createTextNode(formatMoney(product));
+                        var total = row.insertCell();
+                        total.appendChild(info);
+
+                        // Gathers total sum for each stocks
+                        sum += product;
+                    }
+                }
+                // Updates user's net worth
+                tableUsertotal.innerHTML = `<b>${formatMoney(sum + current.cash)}</b>`;
+            } 
+            else {  // Else, setup provision of cash
+                currentUser.set({
+                    name: user.displayName,
+                    cash: 10000,
+                    portfolio: []
+                })
             }
         })
     })()
@@ -50,7 +98,7 @@ function quote(user) {
         detailsDiv.style.display = 'none';
         detailsInfo.style.display = 'inline';
         detailsInfo.innerHTML = '<br>Getting stock quotation...';
-        var symbol = document.getElementById('symbol').value;
+        var symbol = document.getElementById('symbol').value.toUpperCase();
 
         // Fetches data from IEX Cloud Stocks API
         fetch(`https://risingstocks.000webhostapp.com/lookup.php?symbol=${symbol}`)
@@ -58,8 +106,8 @@ function quote(user) {
             .then(result => {  // Informs user about the stocks they're searching
                 detailsInfo.style.display = 'none';
                 detailsDiv.style.display = 'inline';
+                detailsSymbol.innerHTML = symbol;
                 detailsName.innerHTML = result.companyName;
-                detailsSymbol.innerHTML = result.symbol;
                 detailsPrice.innerHTML = formatMoney(result.latestPrice);
             })
             .catch(error => {  // Else, throws error
@@ -73,10 +121,105 @@ function quote(user) {
 
 function buy(user) {
 
+    // Shortcut to necessary elements
+    var detailsInfo = document.getElementById('detailsInfo');
+
     // Sets user interface for 'buy.html'
     document.title += ' Buy';
 
-    // Todo
+    // Clears screen when reset button is pressed
+    document.getElementById('reset').onclick = function() {
+        detailsInfo.style.display = 'none';
+    }
+
+    // Buys share(s) of stock
+    document.querySelector('form').onsubmit = function() {
+
+        // Displays some text while user is waiting
+        detailsInfo.style.display = 'inline';
+        detailsInfo.innerHTML = '<br>Processing transaction...';
+
+        // Ensures for valid number of stock(s)
+        var shares = parseInt(document.getElementById('shares').value);
+        if (!isPositiveInteger(shares)) {
+            detailsInfo.innerHTML = '<br>Nope.';
+            return false;
+        } else if (shares == 0) {
+            detailsInfo.innerHTML = "<br>Can't buy no stock.";
+            return false;
+        }
+        
+        // Fetches data from IEX Cloud Stocks API
+        var symbol = document.getElementById('symbol').value.toUpperCase();
+        fetch(`https://risingstocks.000webhostapp.com/lookup.php?symbol=${symbol}`)
+        .then(response => {response.json()
+            .then(result => {
+
+                // Prepares essential pieces for later manipulation
+                var company = result.companyName;
+                var price = result.latestPrice;
+                var total = price * shares;
+
+                // Gets user's data from Firestore
+                var currentUser = docRef.doc(user.uid);
+                currentUser.get().then(details => {
+                    var current = details.data();
+                    var onhand = current.cash;
+                    var portfolio = current.portfolio;
+                    
+                    // Declines transaction if user doesn't have enough funds
+                    if (total > onhand) {
+                        detailsInfo.style.display = 'inline';
+                        detailsInfo.innerHTML = '<br>Not enough funds.';
+                        return false;
+                    }
+
+                    // Checks if user already owns the stock
+                    var owned = portfolio.findIndex(function(stock, index) {
+                        if (stock.symbol === symbol) {
+                            return true;
+                        }
+                    });
+
+                    // Sets up user's portfolio
+                    if (owned === -1) {
+                        var process = {
+                            symbol: symbol,
+                            company: company,
+                            shares: shares,
+                            price: price
+                        }
+                        portfolio.push(process);
+                    } else {
+                        portfolio[owned].shares += shares;
+                    }
+
+                    // Updates user's portfolio
+                    currentUser.set({
+                        cash: onhand - total,
+                        portfolio: portfolio,
+                    }, { merge: true })
+                    
+                    .then(() => {
+                        location.href = '/index.html';  // Redirects user to index
+                    })
+                    .catch(error => { // Else, throws error
+                        detailsInfo.innerHTML = '<br>Error completing transaction.';
+                        console.log(`${error.code}: ${error.message}`);
+                    });
+                })
+                .catch(error => {  // Else, throws error
+                    detailsInfo.innerHTML = '<br>Transaction error.';
+                    console.log(`${error.code}: ${error.message}`);
+                })
+            })
+            .catch(error => {  // Else, throws error
+                detailsInfo.innerHTML = '<br>Invalid stock.';
+                console.log(`${error.code}: ${error.message}`);
+            })
+        })
+        return false;
+    };
 }
 
 function sell(user) {
@@ -122,4 +265,8 @@ function formatMoney(number, decPlaces, decSep, thouSep) {
         (j ? i.substr(0, j) + thouSep : "") +
         i.substr(j).replace(/(\decSep{3})(?=\decSep)/g, "$1" + thouSep) +
         (decPlaces ? decSep + Math.abs(number - i).toFixed(decPlaces).slice(2) : "");
+}
+
+function isPositiveInteger(n) {
+    return n >>> 0 === parseFloat(n);
 }
