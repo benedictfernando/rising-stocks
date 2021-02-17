@@ -33,10 +33,6 @@ firebase.auth().onAuthStateChanged(function(user) {
 });
 
 
-// Delay showing of pages
-setTimeout(() => document.querySelector('body').removeAttribute('hidden'), 600);
-
-
 // Logs in user
 if (!!document.getElementById('login')) {
 
@@ -77,3 +73,7 @@ if (!!document.getElementById('logout')) {
         });
     };
 }
+
+
+// Delay showing of pages
+setTimeout(() => document.querySelector('body').removeAttribute('hidden'), 700);

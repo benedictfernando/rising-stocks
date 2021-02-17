@@ -26,10 +26,11 @@ function index(user) {
                 var sum = 0;
                 var current = details.data();
                 var portfolio = current.portfolio;
+                portfolio.sort(dynamicSort('symbol'));
                 tableUsercash.innerHTML = formatMoney(current.cash);
 
                 // Loops over returned list of owned stocks
-                for (let i = 0; i < portfolio.length; i++) {
+                for (let i = 0, len = portfolio.length; i < len; i++) {
                     if (portfolio[i].shares > 0) {
 
                         // Populates table's body
@@ -229,6 +230,7 @@ function sell(user) {
     // Shortcut to necessary elements
     var detailsInfo = document.getElementById('detailsInfo');
     var options = document.querySelector('select');
+    var form = document.querySelector('form');
 
     // Sets user interface for 'sell.html'
     document.title += ' Sell';
@@ -243,24 +245,33 @@ function sell(user) {
     currentUser.get().then(details => {
         var current = details.data();
         var portfolio = current.portfolio;
+        var select = portfolio;
+        select.sort(dynamicSort('symbol'));
         
         // Prints options if user already has
-        if (!!portfolio.length) {
-            for (let i = 0; i < portfolio.length; i++) {
-                if (portfolio[i].shares > 0) {
+        if (!!select.length) {
+            for (let i = 0, len = select.length; i < len; i++) {
+                if (select[i].shares > 0) {
                     var option = document.createElement('option');
-                    option.value = portfolio[i].symbol;
-                    option.innerHTML = `${portfolio[i].symbol} (${portfolio[i].shares})`;
+                    option.value = select[i].symbol;
+                    option.innerHTML = `${select[i].symbol} (${select[i].shares})`;
                     options.appendChild(option);
                 }
             }
         } else {
+            var elements = form.elements;
             detailsInfo.style.display = 'inline';
             detailsInfo.innerHTML = "<br>You don't own any stock(s) yet.";
+            form.querySelectorAll(":scope > button").forEach(element => {
+                element.disabled = true;
+            });
+            for (let i = 0, len = elements.length; i < len; i++) {
+                elements[i].readOnly = true;
+            }
         }
 
         // Sell share(s) of stock
-        document.querySelector('form').onsubmit = function() {
+        form.onsubmit = function() {
 
             // Displays some text while user is waiting
             detailsInfo.style.display = 'inline';
@@ -366,6 +377,21 @@ function formatMoney(number, decPlaces, decSep, thouSep) {
         (j ? i.substr(0, j) + thouSep : "") +
         i.substr(j).replace(/(\decSep{3})(?=\decSep)/g, "$1" + thouSep) +
         (decPlaces ? decSep + Math.abs(number - i).toFixed(decPlaces).slice(2) : "");
+}
+
+function dynamicSort(property) {
+    var sortOrder = 1;
+    if(property[0] === "-") {
+        sortOrder = -1;
+        property = property.substr(1);
+    }
+    return function (a,b) {
+        /* next line works with strings and numbers, 
+         * and you may want to customize it to your needs
+         */
+        var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+        return result * sortOrder;
+    }
 }
 
 function isPositiveInteger(n) {
