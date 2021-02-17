@@ -140,7 +140,7 @@ function buy(user) {
         detailsInfo.innerHTML = '<br>Processing transaction...';
 
         // Ensures for valid number of stock(s)
-        var shares = parseInt(document.getElementById('shares').value);
+        var shares = document.getElementById('shares').value;
         if (!isPositiveInteger(shares)) {
             detailsInfo.innerHTML = '<br>Nope.';
             return false;
@@ -150,6 +150,7 @@ function buy(user) {
         }
         
         // Fetches data from IEX Cloud Stocks API
+        shares = parseInt(shares);
         var symbol = document.getElementById('symbol').value.toUpperCase();
         fetch(`https://risingstocks.000webhostapp.com/lookup.php?symbol=${symbol}`)
         .then(response => {response.json()
@@ -219,16 +220,115 @@ function buy(user) {
                 console.log(`${error.code}: ${error.message}`);
             })
         })
-        return false;
+        return false;   // Assures that the current page will not reload
     };
 }
 
 function sell(user) {
 
+    // Shortcut to necessary elements
+    var detailsInfo = document.getElementById('detailsInfo');
+    var options = document.querySelector('select');
+
     // Sets user interface for 'sell.html'
     document.title += ' Sell';
 
-    // Todo
+    // Clears screen when reset button is pressed
+    document.getElementById('reset').onclick = function() {
+        detailsInfo.style.display = 'none';
+    }
+
+    // Gets user's data from Firestore
+    var currentUser = docRef.doc(user.uid);
+    currentUser.get().then(details => {
+        var current = details.data();
+        var portfolio = current.portfolio;
+        
+        // Prints options if user already has
+        if (!!portfolio.length) {
+            for (let i = 0; i < portfolio.length; i++) {
+                if (portfolio[i].shares > 0) {
+                    var option = document.createElement('option');
+                    option.value = portfolio[i].symbol;
+                    option.innerHTML = `${portfolio[i].symbol} (${portfolio[i].shares})`;
+                    options.appendChild(option);
+                }
+            }
+        } else {
+            detailsInfo.style.display = 'inline';
+            detailsInfo.innerHTML = "<br>You don't own any stock(s) yet.";
+        }
+
+        // Sell share(s) of stock
+        document.querySelector('form').onsubmit = function() {
+
+            // Displays some text while user is waiting
+            detailsInfo.style.display = 'inline';
+            detailsInfo.innerHTML = '<br>Processing transaction...';
+
+            // Ensures for valid number of stock(s)
+            var shares = document.getElementById('shares').value;
+            if (!isPositiveInteger(shares)) {
+                detailsInfo.innerHTML = '<br>Nope.';
+                return false;
+            } else if (shares == 0) {
+                detailsInfo.innerHTML = "<br>Can't sell no stock.";
+                return false;
+            }
+            
+            // Fetches data from IEX Cloud Stocks API
+            shares = parseInt(shares);
+            var symbol = document.getElementById('symbol').value.toUpperCase();
+            fetch(`https://risingstocks.000webhostapp.com/lookup.php?symbol=${symbol}`)
+            .then(response => {response.json()
+                .then(result => {
+
+                    var owned = portfolio.findIndex(function(stock, index) {
+                        if (stock.symbol === symbol) { return true }
+                    });
+
+                    // Checks if user already owns the stock
+                    if (owned === -1 || portfolio[owned].shares < 1) {
+                        detailsInfo.innerHTML = `<br>You don't have ${symbol} stock(s) yet.`;
+                        return false;
+                    } else if (portfolio[owned].shares < shares) {
+                        detailsInfo.innerHTML = '<br>Not enough stocks.';
+                        return false;
+                    }
+
+                    // Prepares essential pieces for later manipulation
+                    var price = result.latestPrice;
+                    var total = price * shares;
+                    var onhand = current.cash;
+                    portfolio[owned].shares -= shares;
+                    portfolio[owned].price = price;
+
+                    // Updates user's portfolio
+                    currentUser.set({
+                        cash: onhand + total,
+                        portfolio: portfolio,
+                    }, { merge: true })
+                    
+                    .then(() => {
+                        location.href = '/index.html';  // Redirects user to index
+                    })
+                    .catch(error => { // Else, throws error
+                        detailsInfo.innerHTML = '<br>Error completing transaction.';
+                        console.log(`${error.code}: ${error.message}`);
+                    });
+                })
+                .catch(error => {  // Else, throws error
+                    detailsInfo.innerHTML = '<br>Invalid stock.';
+                    console.log(`${error.code}: ${error.message}`);
+                })
+            })
+            return false;   // Assures that the current page will not reload
+        }
+    })
+    .catch(error => {  // Else, throws error
+        detailsInfo.innerHTML = '<br>Error getting data.';
+        console.log(`${error.code}: ${error.message}`);
+    })
 }
 
 function history(user) {
