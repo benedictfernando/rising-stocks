@@ -105,16 +105,19 @@ function quote(user) {
         fetch(`https://risingstocks.000webhostapp.com/lookup.php?symbol=${symbol}`)
         .then(response => {response.json()
             .then(result => {  // Informs user about the stocks they're searching
-                detailsInfo.style.display = 'none';
                 detailsDiv.style.display = 'inline';
                 detailsSymbol.innerHTML = symbol;
                 detailsName.innerHTML = result.companyName;
                 detailsPrice.innerHTML = formatMoney(result.latestPrice);
             })
             .catch(error => {  // Else, throws error
-                detailsInfo.innerHTML = '<br>Invalid stock.';
+                notify({
+                    message: 'Invalid stock.',
+                    color: 'danger'
+                });
                 console.log(`${error.code}: ${error.message}`);
-            })
+            });
+            detailsInfo.style.display = 'none';
         })
         return false;   // Assures that the current page will not reload
     };
@@ -128,11 +131,6 @@ function buy(user) {
     // Sets user interface for 'buy.html'
     document.title += ' Buy';
 
-    // Clears screen when reset button is pressed
-    document.getElementById('reset').onclick = function() {
-        detailsInfo.style.display = 'none';
-    }
-
     // Buys share(s) of stock
     document.querySelector('form').onsubmit = function() {
 
@@ -143,10 +141,18 @@ function buy(user) {
         // Ensures for valid number of stock(s)
         var shares = document.getElementById('shares').value;
         if (!isPositiveInteger(shares)) {
-            detailsInfo.innerHTML = '<br>Nope.';
+            detailsInfo.style.display = 'none';
+            notify({
+                message: 'Nope.',
+                color: 'danger'
+            });
             return false;
         } else if (shares == 0) {
-            detailsInfo.innerHTML = "<br>Can't buy no stock.";
+            detailsInfo.style.display = 'none';
+            notify({
+                message: "Can't buy no stock.",
+                color: 'danger'
+            });
             return false;
         }
         
@@ -171,8 +177,11 @@ function buy(user) {
                     
                     // Declines transaction if user doesn't have enough funds
                     if (total > onhand) {
-                        detailsInfo.style.display = 'inline';
-                        detailsInfo.innerHTML = '<br>Not enough funds.';
+                        detailsInfo.style.display = 'none';
+                        notify({
+                            message: 'Not enough funds.',
+                            color: 'danger'
+                        });
                         return false;
                     }
 
@@ -204,22 +213,34 @@ function buy(user) {
                     }, { merge: true })
                     
                     .then(() => {
-                        location.href = '/index.html';  // Redirects user to index
+                        notify({
+                            message: 'Stock bought!',
+                            color: 'success'
+                        });
+                        // Redirects user to index
+                        setTimeout(() => location.href = '/index.html', 500);
                     })
                     .catch(error => { // Else, throws error
-                        detailsInfo.innerHTML = '<br>Error completing transaction.';
+                        notify({ message: 'Error completing transaction.' });
                         console.log(`${error.code}: ${error.message}`);
                     });
                 })
                 .catch(error => {  // Else, throws error
-                    detailsInfo.innerHTML = '<br>Transaction error.';
+                    notify({
+                        message: 'Transaction error.',
+                        color: 'danger'
+                    });
                     console.log(`${error.code}: ${error.message}`);
                 })
             })
             .catch(error => {  // Else, throws error
-                detailsInfo.innerHTML = '<br>Invalid stock.';
+                notify({
+                    message: 'Invalid stock.',
+                    color: 'danger'
+                });
                 console.log(`${error.code}: ${error.message}`);
-            })
+            });
+            detailsInfo.style.display = 'none';
         })
         return false;   // Assures that the current page will not reload
     };
@@ -234,11 +255,6 @@ function sell(user) {
 
     // Sets user interface for 'sell.html'
     document.title += ' Sell';
-
-    // Clears screen when reset button is pressed
-    document.getElementById('reset').onclick = function() {
-        detailsInfo.style.display = 'none';
-    }
 
     // Gets user's data from Firestore
     var currentUser = docRef.doc(user.uid);
@@ -280,10 +296,18 @@ function sell(user) {
             // Ensures for valid number of stock(s)
             var shares = document.getElementById('shares').value;
             if (!isPositiveInteger(shares)) {
-                detailsInfo.innerHTML = '<br>Nope.';
+                detailsInfo.style.display = 'none';
+                notify({
+                    message: 'Nope.',
+                    color: 'danger'
+                });
                 return false;
             } else if (shares == 0) {
-                detailsInfo.innerHTML = "<br>Can't sell no stock.";
+                detailsInfo.style.display = 'none';
+                notify({
+                    message: "Can't sell no stock.",
+                    color: 'danger'
+                });
                 return false;
             }
             
@@ -300,10 +324,18 @@ function sell(user) {
 
                     // Checks if user already owns the stock
                     if (owned === -1 || portfolio[owned].shares < 1) {
-                        detailsInfo.innerHTML = `<br>You don't have ${symbol} stock(s) yet.`;
+                        detailsInfo.style.display = 'none';
+                        notify({
+                            message: `You don't have ${symbol} stock(s) yet.`,
+                            color: 'danger'
+                        });
                         return false;
                     } else if (portfolio[owned].shares < shares) {
-                        detailsInfo.innerHTML = '<br>Not enough stocks.';
+                        detailsInfo.style.display = 'none';
+                        notify({
+                            message: 'Not enough stocks.',
+                            color: 'danger'
+                        });
                         return false;
                     }
 
@@ -321,23 +353,28 @@ function sell(user) {
                     }, { merge: true })
                     
                     .then(() => {
-                        location.href = '/index.html';  // Redirects user to index
+                        notify({
+                            message: 'Stock sold!',
+                            color: 'success'
+                        });
+                        // Redirects user to index
+                        setTimeout(() => location.href = '/index.html', 500);
                     })
                     .catch(error => { // Else, throws error
-                        detailsInfo.innerHTML = '<br>Error completing transaction.';
+                        notify({ message: 'Error completing transaction.' });
                         console.log(`${error.code}: ${error.message}`);
                     });
-                })
-                .catch(error => {  // Else, throws error
-                    detailsInfo.innerHTML = '<br>Invalid stock.';
-                    console.log(`${error.code}: ${error.message}`);
-                })
+                });
+                detailsInfo.style.display = 'none';
             })
             return false;   // Assures that the current page will not reload
         }
     })
     .catch(error => {  // Else, throws error
-        detailsInfo.innerHTML = '<br>Error getting data.';
+        notify({
+            message: 'Error getting data.',
+            color: 'danger'
+        });
         console.log(`${error.code}: ${error.message}`);
     })
 }
